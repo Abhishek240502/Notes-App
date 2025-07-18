@@ -1,19 +1,28 @@
-// --- backend/config/passport.js ---
-import dotenv from 'dotenv';
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
+// --- backend/config/passport.js (CommonJS format) ---
 
-dotenv.config();
+const dotenv = require('dotenv');
+const path = require('path');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+// Load .env file manually if needed
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+// TEMP: Debug log
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:5000/auth/google/callback'
-}, async (accessToken, refreshToken, profile, done) => {
+  callbackURL: 'http://localhost:5000/auth/google/callback',
+},
+async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ googleId: profile.id });
+
     if (!user) {
       user = await User.create({
         googleId: profile.id,

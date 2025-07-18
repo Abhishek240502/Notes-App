@@ -8,12 +8,16 @@ router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
-router.get('/google/callback', passport.authenticate('google', {
-  failureRedirect: '/login',
-  session: false
-}), (req, res) => {
-  const token = req.user.token;
-  res.redirect(`http://localhost:5173/dashboard?token=${token}`);
-});
+router.get('/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: 'http://localhost:5173/login', // redirect to frontend login page
+    session: false
+  }),
+  (req, res) => {
+    const token = req.user.token;
+    // Redirect to frontend welcome or notes page
+    res.redirect(`http://localhost:5173/welcome?token=${token}`);
+  }
+);
 
 module.exports = router;
